@@ -11,5 +11,3 @@ def my_function():
                 new_array.append(number)
     print(new_array)
 my_function()
-
-print("Hello World")
