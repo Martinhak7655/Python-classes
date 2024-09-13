@@ -12,3 +12,4 @@ def my_function():
     print(new_array)
 my_function()
 
+print("Hello World")
