@@ -23,22 +23,7 @@ CREATE TABLE IF NOT EXISTS users(
 cursor.execute(create_table)
 connection.commit()
 
-Name = input("Name:  ")
-Mail = input("Mail:  ")
-Password = input("Password:  ")
-Verify = int(input("Verify code:  "))
-
 random_number = random.randint(1000, 9999)
-msg = MIMEMultipart()
-msg['From'] ="martinhakobyan2024@mail.ru"
-msg['To'] = "martinhakobyan954@gmail.com"
-msg['Subject'] = "Hastateq dzer mail hascen"
-msg.attach(MIMEText( f"Mek angamva ogtagorcman kod - {random_number}", 'plain'))
-server = smtplib.SMTP_SSL("smtp.mail.ru", 465)
-
-server.login("martinhakobyan2024@mail.ru", "hdarqJ25g0Msx1Trk9eF")
-server.sendmail("martinhakobyan2024@mail.ru", "martinhakobyan954@gmail.com", msg.as_string())
-
 
 def grancum(name, mail, password, verify):
         if name != "" and len(password) >= 8:
@@ -58,7 +43,6 @@ def grancum(name, mail, password, verify):
                 '''
                 cursor.execute(insert, (name, mail, password))
                 connection.commit()
-                print("Succesfull")
                 return True
         return False
 
