@@ -24,8 +24,10 @@ create_table = '''
 cursor.execute(create_table)
 connection.commit()
 
+user_data = {}
+
 @bot.message_handler(commands=["start"])
-def signin(message):
+def start(message):
     markup = types.ReplyKeyboardMarkup(row_width=1)
     btn1 = types.KeyboardButton("/signin")
     markup.add(btn1)
@@ -33,16 +35,22 @@ def signin(message):
 
 @bot.message_handler(commands=["signin"])
 def signin(message):
-    bot.reply_to(message, "ok lets type your username and password")
+    bot.reply_to(message, "Username:")
 
 @bot.message_handler(content_types=["text"])
-def types2(message):
-    username = message.text
-    password = message.text
-    insert = '''
-        INSERT INTO users (username, password) VALUES (%s, %s);
-    '''
-    cursor.execute(insert, (username, password,))
-    connection.commit()
+def get_username(message):
+    if "username" not in user_data:
+        username = message.text
+        user_data["username"] = username
+        bot.reply_to(message, "Now lets type your Password")
+    else:
+        password = message.text
+        user_data["password"] = password
+        insert = '''
+            INSERT INTO users (username, password) VALUES (%s, %s);
+        '''
+        cursor.execute(insert, (user_data["username"], user_data["password"]))
+        connection.commit()
+        bot.reply_to(message, "Thank!, Your account has been saved")
 
 bot.polling()
