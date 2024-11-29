@@ -2,7 +2,7 @@ import telebot
 import psycopg2
 from telebot import types
 
-BOT_TOKEN = ""
+BOT_TOKEN = "7404397306:AAEsXz6RaTETQGKE7epm-tQr7SwjWSKx4r8"
 bot = telebot.TeleBot(BOT_TOKEN)
 
 connection = psycopg2.connect(
