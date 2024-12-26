@@ -15,8 +15,9 @@ def data(message):
 
         res = requests.get(f"https://restcountries.com/v3.1/name/{country_name}")
         data = res.json()
-        bot.reply_to(message, f"Population: {data[0]["population"]}")
-        bot.reply_to(message, f"Capital City:  {data[0]["capital"][0]}")
+        bot.reply_to(message, f"Population: {data[0]["population"]} 👤")
+        bot.reply_to(message, f"Capital City:  {data[0]["capital"][0]} 🏙")
+        bot.send_photo(message.chat.id, f"{data[0]["flags"]["png"]}")
     except:
         print("Error")
 
