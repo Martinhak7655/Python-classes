@@ -30,11 +30,23 @@ select = '''
 '''
 cursor.execute(select)
 connection.commit()
-user = cursor.fetchall()
+users = cursor.fetchall()
 
 @app.get("/")
 def user_data():
     try:
-        return {"name": user[0][1], "surname": user[0][2], "age": user[0][3], "country": user[0][4]}
+        if users:
+            user_list = []
+            for user in users:
+                user_data = {
+                    "name": user[1], 
+                    "surname": user[2], 
+                    "age": user[3], 
+                    "country": user[4] 
+                }
+                user_list.append(user_data)
+            return {"users": user_list}
+        else:
+            return {"message": "Not Found"}
     except:
         print("Error")
