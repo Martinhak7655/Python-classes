@@ -23,7 +23,7 @@ def get_id(id: Union[int, None] = None):
         user = cursor.fetchone()
 
         if user:
-            return {"user": user, "message": "This man found"}
+            return {"user": user[0], "username": user[1], "password": user[2]}
         else:
             return {"message": "This man not found"}
     except:
