@@ -15,7 +15,7 @@ import requests
 # try:
 #     country_name = input("Enter Country Name:  ")
     
-#     res = requests.get(f"https://restcountries.com/v3.1/name/{country_name}")
+    # res = requests.get(f"https://restcountries.com/v3.1/name/{country_name}")
 #     data = res.json()
 #     print(f"Population: {data[0]["population"]}")
 # except:
