@@ -18,9 +18,11 @@ def calculator():
         elif operator == "*":
             label4.config(text=f"result: {num1 * num2}")   
         elif operator == "/":
+            if num2 == 0:
+                label4.config(text="Թիվը զրոյի վրա բաժանել չի կաչելի")
             label4.config(text=f"result: {num1 / num2}")   
         else:
-            result = "Invalid Operator"
+            label4.config(text=f"result: Invalid Operator")
     except:
         print("Error")
 
