@@ -27,10 +27,10 @@ def data():
     except:
         print("Error")
 
-label = ttk.Label(root, text="Enter Country Name", style="Design.Label")
+label = ttk.Label(root, text="Enter Country Name", style="Design.TLabel")
 label.pack(pady=15)
 style = ttk.Style()
-style.configure("Design.Label", font=("Arial", 16), background="#6495ED", foreground="white")
+style.configure("Design.TLabel", font=("Arial", 16), background="#6495ED", foreground="white")
 input = ttk.Entry(root, width=30)
 input.pack()
 
