@@ -1,7 +1,8 @@
 import telebot
 from telebot import types
 
-
+BOT_TOKEN = "7701837387:AAGMgH1mzAmKWoc0rtq86uZ2lT9PwN9CTdU"
+bot = telebot.TeleBot(BOT_TOKEN)
 
 @bot.message_handler(commands=["start"])
 def start(message):
@@ -17,7 +18,7 @@ def callback(call):
     user_id = call.from_user.id
     if call.data == "cv":
         user_data[user_id] = {}
-        bot.send_message(call.message.chat.id, "Շատ լավ, ուղարկեք ձեր նկարի լինկը")
+        bot.send_message(call.message.chat.id, "Շատ լավ, ուղարկեք ձեր նկար")
         bot.register_next_step_handler(call.message, image)
 
 def image(message):
@@ -55,10 +56,28 @@ def school(message):
 
 def language(message):
     user_id = message.from_user.id
+    username = message.from_user.username
     user_data[user_id]["language"] = message.text
     bot.reply_to(message, "Շնորհակալություն ձեր հայտը ուղարկվեց")
     bot.send_photo(6422967638, user_data[user_id]["photo"])
     bot.send_message(6422967638,
-    f"Անունը և ազգանունը։ {user_data[user_id]['name']}\n Մայլը։ {user_data[user_id]['mail']}\n Հեռախոսահամար։ {user_data[user_id]['phone']}\n Սովորելա։ {user_data[user_id]['school']}\n Լեզուներ։ {user_data[user_id]['language']}\n", parse_mode="Markdown")
+    f"Օգտագործողի այդին։ {user_id}\n username ը։ {username}\n Անունը և ազգանունը։ {user_data[user_id]['name']}\n Մայլը։ {user_data[user_id]['mail']}\n Հեռախոսահամար։ {user_data[user_id]['phone']}\n Սովորելա։ {user_data[user_id]['school']}\n Լեզուներ։ {user_data[user_id]['language']}\n", parse_mode="Markdown")
+    markup = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton("Հաստատել", callback_data="hastatel")
+    btn2 = types.InlineKeyboardButton("Մերժել", callback_data="merjel")
+    markup.add(btn1, btn2)
+    bot.send_message(6422967638, "Հաստատել թե մերժել", reply_markup=markup)
+
+@bot.callback_query_handler(func=lambda call: True)
+def hastatel(call):
+    if call.data == "hastatel":
+        bot.send_message(call.message.chat.id, "Խմդրում եմ գրեք հայտը ուղարկողի այդին")
+        bot.register_next_step_handler(call.message, user_id)
+
+def user_id(message):
+    user_id = message.text
+    bot.send_message(user_id, "Ձեր հայտը հաստատվեց")
+    bot.reply_to(message, "Պատասխանը ուղարկվեց")
+
 
 bot.polling()
