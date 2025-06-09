@@ -2,7 +2,7 @@ import telebot
 import psycopg2
 import random
 
-random_numbers = []
+random_numbers = {}
 user_attempts = {}
 
 BOT_TOKEN = "7840808695:AAGX-luFAJYBaLKKaki0dIfJHdJivRnXolA"
@@ -33,7 +33,7 @@ def get_random_number(length):
     number = ''
     for i in range(length):
         number += str(random.randint(0, 9))
-    random_numbers.append(number)
+    return number
 
 def feedback(random_number, user_input):
     number_in = 0
@@ -46,7 +46,7 @@ def feedback(random_number, user_input):
             number_in_place += 1
         if user_input[i] in random_number:
             number_in += 1
-    return f"Numbers in: {number_in}, numbers in place: {number_in_place}, random_number: {random_number}", False
+    return f"Թիվը գոյություն ունի: {number_in} անգամ, թիվը իր տեղում է: {number_in_place} անգամ", False
 
 def exists_user(tg_id):
     select = '''
@@ -63,7 +63,7 @@ def add_user(tg_id, username):
         INSERT INTO users (tg_id, username) VALUES (%s, %s);
     '''
     print(tg_id)
-    cursor.execute(insert, (tg_id, username))
+    cursor.execute(insert, (tg_id, username,))
     connection.commit()
 
 @bot.message_handler(commands=["start"])
@@ -73,6 +73,7 @@ def start(message):
     if not exists_user(tg_id):
         add_user(tg_id, username)
     number = get_random_number(5)
+    random_numbers[tg_id] = number
     user_attempts[tg_id] = 10
     bot.reply_to(message, f"Բարի գալուստ, փորձեք գուշակել թիվը, ձեզ մնաց {user_attempts[tg_id]} փորձ։ Սեղմեք /points ձեր միավորները տեսնելու համար")
 
@@ -93,7 +94,7 @@ def number(message):
     user_input = message.text
     tg_id = str(message.from_user.id)
 
-    random_number = random_numbers[0]
+    random_number = random_numbers[tg_id]
     feedback_text, is_correct = feedback(random_number, user_input)
     bot.reply_to(message, feedback_text)
 
@@ -103,7 +104,10 @@ def number(message):
         '''
         cursor.execute(update, (tg_id,))
         connection.commit()
-        random_numbers.clear()
+        del random_numbers[tg_id]
+        del user_attempts[tg_id]
+        return
+
 
     user_attempts[tg_id] -= 1
     
@@ -114,6 +118,7 @@ def number(message):
         '''
         cursor.execute(update, (tg_id,))
         connection.commit()
-        random_numbers.clear()
+        del random_numbers[tg_id]
+        del user_attempts[tg_id]
 
 bot.polling()
