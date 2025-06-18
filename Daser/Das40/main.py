@@ -20,6 +20,13 @@ def callback(call):
         user_data[user_id] = {}
         bot.send_message(call.message.chat.id, "Շատ լավ, ուղարկեք ձեր նկար")
         bot.register_next_step_handler(call.message, image)
+    elif call.data == "hastatel":
+        bot.send_message(call.message.chat.id, "Խմդրում եմ գրեք հայտը ուղարկողի այդին")
+        bot.register_next_step_handler(call.message, confirm_id)
+    elif call.data == "merjel":
+        bot.send_message(call.message.chat.id, "Խմդրում եմ գրեք հայտը ուղարկողի այդին")
+        bot.register_next_step_handler(call.message, canceled_id)
+
 
 def image(message):
     user_id = message.from_user.id
@@ -68,15 +75,14 @@ def language(message):
     markup.add(btn1, btn2)
     bot.send_message(6422967638, "Հաստատել թե մերժել", reply_markup=markup)
 
-@bot.callback_query_handler(func=lambda call: True)
-def hastatel(call):
-    if call.data == "hastatel":
-        bot.send_message(call.message.chat.id, "Խմդրում եմ գրեք հայտը ուղարկողի այդին")
-        bot.register_next_step_handler(call.message, user_id)
-
-def user_id(message):
-    user_id = message.text
+def confirm_id(message):
+    user_id = int(message.text)
     bot.send_message(user_id, "Ձեր հայտը հաստատվեց")
+    bot.reply_to(message, "Պատասխանը ուղարկվեց")
+
+def canceled_id(message):
+    user_id = int(message.text)
+    bot.send_message(user_id, "Ձեր հայտը չեղարկվեց")
     bot.reply_to(message, "Պատասխանը ուղարկվեց")
 
 
