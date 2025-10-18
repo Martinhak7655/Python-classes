@@ -51,6 +51,8 @@ cursor = connection.cursor()
 create_table = '''
     CREATE TABLE IF NOT EXISTS users(
         id SERIAL PRIMARY KEY,
+        tg_id TEXT NOT NULL,
+        username TEXT NOT NULL,
         create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 '''
