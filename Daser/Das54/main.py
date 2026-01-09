@@ -3,9 +3,9 @@ from telebot import types
 import os
 import psycopg2
 
-SAVE_FOLDER = "./images"
+SAVE_FOLDER = "./download"
 os.makedirs(SAVE_FOLDER, exist_ok=True)
-
+user_data = {}
 
 BOT_TOKEN = "8220373377:AAHSxaZ-szfTV_TllGw6ZDrEt28MXv45Dk0"
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -19,10 +19,11 @@ connection = psycopg2.connect(
 cursor = connection.cursor()
 
 create_table = '''
-    CREATE TABLE IF NOT EXISTS images (
+    CREATE TABLE IF NOT EXISTS users(
         id SERIAL PRIMARY KEY,
-        username TEXT NOT NULL,
-        image_link TEXT NOT NULL,
+        username VARCHAR(100) NOT NULL,
+        image TEXT NOT NULL,
+        category VARCHAR(100) NOT NULL,
         create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 '''
@@ -32,48 +33,61 @@ connection.commit()
 @bot.message_handler(commands=["start"])
 def start(message):
     markup = types.InlineKeyboardMarkup()
-    btn1 = types.InlineKeyboardButton("Save Image", callback_data="save")
-    btn2 = types.InlineKeyboardButton("Show image", callback_data="show")
-    markup.add(btn1, btn2)
-    bot.reply_to(message, "Select button", reply_markup=markup)
+    button1 = types.InlineKeyboardButton("Ուղարկել Նկար", callback_data="uxarkel")
+    button2 = types.InlineKeyboardButton("Ստանալ Նկար", callback_data="stanal")
+    markup.add(button1, button2)
+    bot.reply_to(message, "Խնդրում եմ նշեք կոճակներից որև է մեկը", reply_markup=markup)
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback(call):
-    if call.data == "save":
-        bot.send_message(call.message.chat.id, "Please Send a image")
-    elif call.data == "show":
-        bot.send_message(call.message.chat.id, "Wait a minute")
-        bot.register_next_step_handler(call.message, show_image)
-
-
+    user_id = str(call.from_user.id)
+    if call.data == "uxarkel":
+        user_data[user_id] = {}
+        bot.send_message(call.message.chat.id, "Ուղարկեք նկար")
+    if call.data == "stanal":
+        bot.send_message(call.message.chat.id, "Գրեք կատեգորյան")
+        bot.register_next_step_handler(call.message, show_photo)
 
 @bot.message_handler(content_types=["photo"])
-def save(message):
-    username = message.from_user.username
+def photo(message):
     photo = message.photo[-1]
+    user_id = str(message.from_user.id)
     file_info = bot.get_file(photo.file_id)
     download_file = bot.download_file(file_info.file_path)
     file_name = f"{photo.file_id}.jpg"
     file_path = os.path.join(SAVE_FOLDER, file_name)
     with open(file_path, "wb") as f:
         f.write(download_file)
-    insert = '''
-        INSERT INTO images (username, image_link) VALUES (%s, %s);
-    '''
-    cursor.execute(insert, (username, file_name,))
-    connection.commit()
+    user_data[user_id]["photo"] = file_name
+    bot.reply_to(message, "խՆդրում ենք գրեք կատեգորյան")
+    bot.register_next_step_handler(message, category)
 
-def show_image(message):
+def category(message):
     username = message.from_user.username
-    print(username)
-    select = '''
-        SELECT * FROM images WHERE username = (%s);
+    user_id = str(message.from_user.id)
+    category = message.text
+
+    user_data[user_id]["category"] = category
+
+    insert = '''
+        INSERT INTO users (username, image, category) VALUES (%s, %s, %s)
     '''
-    cursor.execute(select, (username,))
+    cursor.execute(insert, (username, user_data[user_id]["photo"], user_data[user_id]["category"],))
+    connection.commit()
+    del user_data[user_id]["photo"]
+    del user_data[user_id]["category"]
+
+def show_photo(message):
+    category = message.text
+
+    select = '''
+        SELECT * FROM users WHERE category = (%s);
+    '''
+    cursor.execute(select, (category,))
     connection.commit()
     users = cursor.fetchall()
-
     for user in users:
-        bot.send_photo(message.chat.id, open(f"./images/{user[2]}", "rb"))
-
+        bot.send_photo(message.chat.id, open(f"./download/{user[2]}", "rb"))
+        bot.reply_to(message, f"Ստեղծողը՝ {user[1]}")
 bot.polling()
+    
